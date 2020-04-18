@@ -4,6 +4,7 @@ import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightsStorage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -24,12 +25,16 @@ public class Calculator implements Supplier<List<List<Flight>>> {
     @Override
     public List<List<Flight>> get() {
         while (!mandatoryFlights.isEmpty()) {
-            final Flight origin = getMostExpenciveMandatoryFlight();
-            final List<Flight> route = searchRoute(origin);
-            removeFlight(origin);
-            if (route != null) {
-                routes.add(route);
-                removeRoute(route);
+            final Optional<Flight> originOpt = getMostExpenciveMandatoryFlight();
+            if (originOpt.isPresent()) {
+                final Flight origin = originOpt.get();
+                final Optional<List<Flight>> routeOpt = searchRoute(origin);
+                removeFlight(origin);
+                if (routeOpt.isPresent()) {
+                    final List<Flight> route = routeOpt.get();
+                    routes.add(route);
+                    removeRoute(route);
+                }
             }
         }
         return routes;
@@ -44,19 +49,10 @@ public class Calculator implements Supplier<List<List<Flight>>> {
         mandatoryFlights.removeAll(route);
         allFlights.removeAll(route);
     }
-    
-    private List<Flight> searchRoute(Flight origin) {
-        final int home = origin.getFrom();
 
-        final List<Flight> base = new ArrayList<>();
-        base.add(origin);
-        final List<List<Flight>> cycles = buildCycles(base, home);
-        if (cycles.isEmpty()) {
-            return null;
-        }
-
-        final List<Flight> minCycle = cycles.stream().min((c1, c2) -> getCost(c1) - getCost(c2)).orElse(null);
-        return minCycle;
+    private Optional<List<Flight>> searchRoute(Flight origin) {
+        return buildCycles(merge(new ArrayList<>(), origin), origin.getFrom())
+                .stream().min((c1, c2) -> getCost(c1) - getCost(c2));
     }
 
     private static int getCost(List<Flight> route) {
@@ -67,8 +63,8 @@ public class Calculator implements Supplier<List<List<Flight>>> {
         return result;
     }
 
-    private Flight getMostExpenciveMandatoryFlight() {
-        return mandatoryFlights.stream().max((f1, f2) -> f1.getCost() - f2.getCost()).orElse(null);
+    private Optional<Flight> getMostExpenciveMandatoryFlight() {
+        return mandatoryFlights.stream().max((f1, f2) -> f1.getCost() - f2.getCost());
     }
 
     private List<List<Flight>> buildCycles(List<Flight> base, int home) {
