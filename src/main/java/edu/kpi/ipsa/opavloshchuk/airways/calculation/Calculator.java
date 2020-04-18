@@ -26,17 +26,25 @@ public class Calculator implements Supplier<List<List<Flight>>> {
         while (!mandatoryFlights.isEmpty()) {
             final Flight origin = getMostExpenciveMandatoryFlight();
             final List<Flight> route = searchRoute(origin);
-            mandatoryFlights.remove(origin);
-            allFlights.remove(origin);
+            removeFlight(origin);
             if (route != null) {
                 routes.add(route);
-                mandatoryFlights.removeAll(route);
-                allFlights.removeAll(route);
+                removeRoute(route);
             }
         }
         return routes;
     }
 
+    private void removeFlight(Flight flight) {
+        mandatoryFlights.remove(flight);
+        allFlights.remove(flight);
+    }
+
+    private void removeRoute(List<Flight> route) {
+        mandatoryFlights.removeAll(route);
+        allFlights.removeAll(route);
+    }
+    
     private List<Flight> searchRoute(Flight origin) {
         final int home = origin.getFrom();
 
@@ -51,8 +59,12 @@ public class Calculator implements Supplier<List<List<Flight>>> {
         return minCycle;
     }
 
-    private int getCost(List<Flight> route) {
-        return route.stream().collect(Collectors.summingInt(Flight::getCost));
+    private static int getCost(List<Flight> route) {
+        int result = 0;
+        for (int i = 0; i < route.size(); i++) {
+            result += getCost(route, i);
+        }
+        return result;
     }
 
     private Flight getMostExpenciveMandatoryFlight() {
@@ -67,8 +79,13 @@ public class Calculator implements Supplier<List<List<Flight>>> {
             // Останній рейс повертається додому - цикл знайдено:
             result.add(base);
             return result;
+        } else if (base.size() > 1) {
+            // Час відправлення наступного має бути після часу попереднього:
+            final Flight beforeLast = base.get(base.size() - 2);
+            if (last.getDepartureTime() < beforeLast.getArrivalTime()) {
+                return result;
+            }
         }
-
         // Для всіх сусідніх рейсів:
         getNeighbours(last).stream()
                 .map(next -> merge(base, next))
@@ -87,6 +104,22 @@ public class Calculator implements Supplier<List<List<Flight>>> {
         return allFlights.stream()
                 .filter(next -> next.getFrom() == flight.getTo())
                 .collect(Collectors.toList());
+    }
+
+    private static int getCost(List<Flight> route, int index) {
+        final Flight thisFlight = route.get(index);
+        int result = route.get(index).getCost();
+        if (index == 0) {
+            return result;
+        }
+        // В маршруті є як мінімум два рейси:
+        final int waitTime = thisFlight.getDepartureTime() - route.get(index - 1).getArrivalTime();
+        return result + getWaitCost(waitTime);
+    }
+
+    private static int getWaitCost(int time) {
+        final double waitPrice = 0.0; // TODO for a while
+        return (int) Math.round(time * waitPrice);
     }
 
 }
