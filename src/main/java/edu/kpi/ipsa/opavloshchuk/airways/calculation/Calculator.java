@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Calculator implements Supplier<List<List<Flight>>> {
 
@@ -83,7 +84,7 @@ public class Calculator implements Supplier<List<List<Flight>>> {
             }
         }
         // Для всіх сусідніх рейсів:
-        getNeighbours(last).stream()
+        getNeighbours(last)
                 .map(next -> merge(base, next))
                 .map(route -> buildCycles(route, home))
                 .forEach(newRoutes -> result.addAll(newRoutes));
@@ -96,10 +97,9 @@ public class Calculator implements Supplier<List<List<Flight>>> {
         return route;
     }
 
-    private List<Flight> getNeighbours(Flight flight) {
+    private Stream<Flight> getNeighbours(Flight flight) {
         return allFlights.stream()
-                .filter(next -> next.getFrom() == flight.getTo())
-                .collect(Collectors.toList());
+                .filter(next -> next.getFrom() == flight.getTo());
     }
 
     private static int getCost(List<Flight> route, int index) {
