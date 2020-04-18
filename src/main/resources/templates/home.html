@@ -7,7 +7,8 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <h1>AIRWAYS application: <a href="#" th:href="@{/calculate}">Calculate</a></h1>
+        <h1>AIRWAYS application: 
+        <a href="#" th:href="@{/calculate}">Calculate</a></h1>
         <hr/>
         <h2>Source</h2>
         <form action="#" th:action="@{/}" th:object="${flight}" method="POST">
@@ -65,10 +66,10 @@
                 </tr>
             </table>
         </form>
-        <div th:if="${!heuristicResult.isEmpty()}">
+        <div th:if="${!result.isEmpty()}">
             <hr/>
-            <h2>Heuristic result</h2>
-            <table>
+            <h2>Result</h2>
+            <table th:each="route: ${result}">
                 <tr>
                     <th>Number</th>
                     <th>From</th>
@@ -79,7 +80,7 @@
                     <th>Mandatory</th>
                     <th></th>
                 </tr>
-                <tr th:each="flight : ${heuristicResult}">
+                <tr th:each="flight : ${route}">
                     <td th:text="${flight.number}" />
                     <td th:text="${flight.from}" />
                     <td th:text="${flight.to}" />
