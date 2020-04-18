@@ -1,12 +1,94 @@
 <!DOCTYPE html>
 
-<html>
+<html xmlns:th="https://www.thymeleaf.org">
     <head>
         <title>AIRWAYS application</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
-        <p th:text="'Hello, ' + ${name} + '!'"/>
+        <h1>AIRWAYS application: <a href="#" th:href="@{/calculate}">Calculate</a></h1>
+        <hr/>
+        <h2>Source</h2>
+        <form action="#" th:action="@{/}" th:object="${flight}" method="POST">
+            <table>
+                <tr>
+                    <th>Number</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Cost</th>
+                    <th>Departure time</th>
+                    <th>Arrival time</th>
+                    <th>Mandatory</th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <td>
+                        <input type="text" th:field="*{number}"/>
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{from}"/>
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{to}"/>
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{cost}"/>
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{departureTime}"/>
+                    </td>
+                    <td>
+                        <input type="text" th:field="*{arrivalTime}"/>
+                    </td>
+                    <td>
+                        <select th:field="*{mandatory}">
+                            <option value="true" th:value="true">true</option>
+                            <option value="false" th:value="false">false</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="submit" value="Add or update flight"/>
+                    </td>
+                </tr>
+                <tr th:each="flight : ${source}">
+                    <td th:text="${flight.number}" />
+                    <td th:text="${flight.from}" />
+                    <td th:text="${flight.to}" />
+                    <td th:text="${flight.cost}" />
+                    <td th:text="${flight.departureTime}" />
+                    <td th:text="${flight.arrivalTime}" />
+                    <td th:text="${flight.mandatory}" />
+                    <td>
+                        <a href="#" th:href="@{/remove(number=${flight.number})}">Remove</a>
+                    </td>
+                </tr>
+            </table>
+        </form>
+        <div th:if="${!heuristicResult.isEmpty()}">
+            <hr/>
+            <h2>Heuristic result</h2>
+            <table>
+                <tr>
+                    <th>Number</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Cost</th>
+                    <th>Departure time</th>
+                    <th>Arrival time</th>
+                    <th>Mandatory</th>
+                    <th></th>
+                </tr>
+                <tr th:each="flight : ${heuristicResult}">
+                    <td th:text="${flight.number}" />
+                    <td th:text="${flight.from}" />
+                    <td th:text="${flight.to}" />
+                    <td th:text="${flight.cost}" />
+                    <td th:text="${flight.departureTime}" />
+                    <td th:text="${flight.arrivalTime}" />
+                    <td th:text="${flight.mandatory}" />
+                </tr>
+            </table>
+        </div>
     </body>
 </html>
