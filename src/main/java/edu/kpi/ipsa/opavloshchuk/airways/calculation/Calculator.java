@@ -3,21 +3,20 @@ package edu.kpi.ipsa.opavloshchuk.airways.calculation;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightsStorage;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 public class Calculator implements Supplier<List<List<Flight>>> {
 
-    private final List<Flight> source;
+    private final List<Flight> allFlights;
     private final List<List<Flight>> routes = new ArrayList<>();
     private final List<Flight> mandatoryFlights = new ArrayList<>();
 
     public Calculator(FlightsStorage storage) {
-        this.source = storage.list();
-        // Робиться копія списку для можливості видалення елементів в процесі роботи алгоритму
-        mandatoryFlights.addAll(this.source.stream()
+        // Робляться копії списків для можливості видалення елементів в процесі роботи алгоритму
+        this.allFlights = new ArrayList<>(storage.list());
+        mandatoryFlights.addAll(this.allFlights.stream()
                 .filter(Flight::isMandatory)
                 .collect(Collectors.toList()));
     }
@@ -25,33 +24,38 @@ public class Calculator implements Supplier<List<List<Flight>>> {
     @Override
     public List<List<Flight>> get() {
         while (!mandatoryFlights.isEmpty()) {
-            final List<Flight> route = searchRoute();
-            routes.add(route);
-            mandatoryFlights.removeAll(route);
+            final Flight origin = getMostExpenciveMandatoryFlight();
+            final List<Flight> route = searchRoute(origin);
+            mandatoryFlights.remove(origin);
+            allFlights.remove(origin);
+            if (route != null) {
+                routes.add(route);
+                mandatoryFlights.removeAll(route);
+                allFlights.removeAll(route);
+            }
         }
         return routes;
     }
 
-    private List<Flight> searchRoute() {
-        final Flight originFlight = getMostExpenciveFlight();
-        final int home = originFlight.getFrom();
+    private List<Flight> searchRoute(Flight origin) {
+        final int home = origin.getFrom();
 
         final List<Flight> base = new ArrayList<>();
-        base.add(originFlight);
+        base.add(origin);
         final List<List<Flight>> cycles = buildCycles(base, home);
         if (cycles.isEmpty()) {
-            return Collections.emptyList();
+            return null;
         }
 
-        final List<Flight> maxCycle = cycles.stream().max( (c1, c2) -> getCost(c1) - getCost(c2)).orElse(null);
-        return maxCycle;
+        final List<Flight> minCycle = cycles.stream().min((c1, c2) -> getCost(c1) - getCost(c2)).orElse(null);
+        return minCycle;
     }
 
     private int getCost(List<Flight> route) {
         return route.stream().collect(Collectors.summingInt(Flight::getCost));
     }
 
-    private Flight getMostExpenciveFlight() {
+    private Flight getMostExpenciveMandatoryFlight() {
         return mandatoryFlights.stream().max((f1, f2) -> f1.getCost() - f2.getCost()).orElse(null);
     }
 
@@ -64,44 +68,25 @@ public class Calculator implements Supplier<List<List<Flight>>> {
             result.add(base);
             return result;
         }
-        // Коли сусідніх рейсів нема, то нема циклів:
-        if (getNeighboursCount(last) == 0) {
-            return Collections.emptyList();
-        }
 
         // Для всіх сусідніх рейсів:
-        source.stream()
-                .filter(next -> canContinue(last, next))
-                .forEach(next -> {
-                    // Новий маршрут до сусіда:
-                    final List<Flight> route = new ArrayList<>(base);
-                    route.add(next);
-                    final List<List<Flight>> nextCycles = buildCycles(route, home);
-                    result.addAll(nextCycles);
-                });
-
+        getNeighbours(last).stream()
+                .map(next -> merge(base, next))
+                .map(route -> buildCycles(route, home))
+                .forEach(newRoutes -> result.addAll(newRoutes));
         return result;
     }
 
-    /**
-     *
-     * @param flight
-     * @return число сусідів flight
-     */
-    private long getNeighboursCount(Flight flight) {
-        return source.stream()
-                .filter(next -> canContinue(flight, next))
-                .count();
+    private List<Flight> merge(List<Flight> base, Flight next) {
+        final List<Flight> route = new ArrayList<>(base);
+        route.add(next);
+        return route;
     }
 
-    /**
-     *
-     * @param thisFlight
-     * @param nextFlight
-     * @return чи може thisFlight продовжити nextFlight
-     */
-    private static boolean canContinue(Flight thisFlight, Flight nextFlight) {
-        return thisFlight.getTo() == nextFlight.getFrom() && thisFlight.getArrivalTime() < nextFlight.getDepartureTime();
+    private List<Flight> getNeighbours(Flight flight) {
+        return allFlights.stream()
+                .filter(next -> next.getFrom() == flight.getTo())
+                .collect(Collectors.toList());
     }
 
 }
