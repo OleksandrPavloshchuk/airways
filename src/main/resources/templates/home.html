@@ -19,6 +19,9 @@
     <body>
         <h1>AIRWAYS application: 
         <a href="#" th:href="@{/calculate}">Calculate</a></h1>
+        <form method="POST" enctype="multipart/form-data" th:action="@{/uploadCsv}" >
+            <input type="file" name="file" /> <input type="submit" value="Upload CSV file" />
+        </form>
         <hr/>
         <h2>Source</h2>
         <form action="#" th:action="@{/}" th:object="${flight}" method="POST">
