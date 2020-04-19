@@ -32,7 +32,7 @@ public class Calculator {
         while (!mandatoryFlights.isEmpty()) {
             // Обов'язкові рейси обробляються в порядку спадання їхньої ціни
             final Optional<Flight> originOpt = getMostExpenciveMandatoryFlight();
-            if (originOpt.isPresent()) {                
+            if (originOpt.isPresent()) {
                 final Flight origin = originOpt.get();
                 final Optional<List<Flight>> cycleOpt = searchCycle(origin);
                 // Цей рейс оброблений, і він вже нам не потрібний
@@ -59,10 +59,10 @@ public class Calculator {
     }
 
     /**
-     * Видалити flight зі списку всіх рейсів та обов'язкових рейсів
-     * для запобігання повторного обліку
-     * 
-     * @param flight 
+     * Видалити flight зі списку всіх рейсів та обов'язкових рейсів для
+     * запобігання повторного обліку
+     *
+     * @param flight
      */
     private void removeFromSource(Flight flight) {
         mandatoryFlights.remove(flight);
@@ -70,10 +70,10 @@ public class Calculator {
     }
 
     /**
-     * Видалити всі рейси із циклу cycle зі списку всіх рейсів та обов'язкових рейсів
-     * для запобігання повторного обліку
-     * 
-     * @param cycle 
+     * Видалити всі рейси із циклу cycle зі списку всіх рейсів та обов'язкових
+     * рейсів для запобігання повторного обліку
+     *
+     * @param cycle
      */
     private void removeFromSource(List<Flight> cycle) {
         mandatoryFlights.removeAll(cycle);
@@ -82,9 +82,9 @@ public class Calculator {
 
     /**
      * Знайти цикл із обов'язковим рейсом origin, що має найменшу вартість
-     * 
+     *
      * @param origin
-     * @return 
+     * @return
      */
     private Optional<List<Flight>> searchCycle(Flight origin) {
         // Пошук почати із масиву, що місить лише рейс origin
@@ -94,9 +94,9 @@ public class Calculator {
 
     /**
      * Порахувати вартість циклу
-     * 
+     *
      * @param cycle
-     * @return 
+     * @return
      */
     private static int getCost(List<Flight> cycle) {
         int result = 0;
@@ -108,8 +108,8 @@ public class Calculator {
 
     /**
      * Знайти найдорожчий обов'язковий рейс
-     * 
-     * @return 
+     *
+     * @return
      */
     private Optional<Flight> getMostExpenciveMandatoryFlight() {
         return mandatoryFlights.stream().max((f1, f2) -> f1.getCost() - f2.getCost());
@@ -117,24 +117,25 @@ public class Calculator {
 
     /**
      * Рекурсивний пошук циклів
-     * 
+     *
      * @param base маршрут для перевірки
      * @param home точка, куди треба вернутися
-     * @return 
+     * @return
      */
     private List<List<Flight>> detectCycles(List<Flight> base, int home) {
         final List<List<Flight>> result = new ArrayList<>();
         // Останній рейс в маршруті:
         final Flight last = base.get(base.size() - 1);
-        if (last.getTo() == home) {
-            // Останній рейс у ланцюжку повертається додому - цикл знайдено:
-            result.add(base);
-            return result;
-        } else if (base.size() > 1) {
+        if (base.size() > 1) {
             // Час відправлення останнього рейсу має бути після часу прибуття передостаннього:
             final Flight beforeLast = base.get(base.size() - 2);
             if (last.getDepartureTime() < beforeLast.getArrivalTime()) {
                 // Останній рейс відлітає раніше, ніж прибуває пере
+                return result;
+            }
+            if (last.getTo() == home) {
+                // Останній рейс у ланцюжку повертається додому - цикл знайдено:
+                result.add(base);
                 return result;
             }
         }
@@ -148,10 +149,10 @@ public class Calculator {
 
     /**
      * Добавити елемент у хвіст масиву
-     * 
+     *
      * @param base
      * @param next
-     * @return 
+     * @return
      */
     private static List<Flight> merge(List<Flight> base, Flight next) {
         final List<Flight> route = new ArrayList<>(base);
@@ -160,10 +161,11 @@ public class Calculator {
     }
 
     /**
-     * Знайти сусідні рейси, тобто ті, які відправляються із пункту призначення рейсу flight
-     * 
+     * Знайти сусідні рейси, тобто ті, які відправляються із пункту призначення
+     * рейсу flight
+     *
      * @param flight
-     * @return 
+     * @return
      */
     private Stream<Flight> getNeighbours(Flight flight) {
         return allFlights.stream()
@@ -172,10 +174,10 @@ public class Calculator {
 
     /**
      * Порахувати вартість рейсу з урахуванням часу очікування між рейсами
-     * 
+     *
      * @param cycle цикл
      * @param index позиція рейсу у циклі
-     * @return 
+     * @return
      */
     private static int getCost(List<Flight> cycle, int index) {
         final Flight thisFlight = cycle.get(index);
@@ -190,9 +192,9 @@ public class Calculator {
 
     /**
      * Порахувати час очікування
-     * 
+     *
      * @param time
-     * @return 
+     * @return
      */
     private static int getWaitCost(int time) {
         final double waitPrice = 0.0; // TODO for a while

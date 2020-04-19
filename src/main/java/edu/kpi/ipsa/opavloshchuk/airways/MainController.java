@@ -86,6 +86,8 @@ public class MainController {
             RedirectAttributes redirectAttributes, Model model) throws IOException {        
         cycles.clear();
         sourceFlightStorage.clear();
+        mandatoryFlightsWithoutCycles.clear();
+        validationErrors.clear();
         final CsvParser parser = new CsvParser(file.getBytes());
         parser.perform();
         parser.getFlights().forEach( flight -> sourceFlightStorage.store(flight));        
