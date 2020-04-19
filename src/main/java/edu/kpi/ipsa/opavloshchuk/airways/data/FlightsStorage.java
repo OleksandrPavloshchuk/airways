@@ -15,10 +15,6 @@ public class FlightsStorage {
         }
     }
 
-    public Flight get(int number) {
-        return data.get(number);
-    }
-
     public void remove(int number) {
         if (data.containsKey(number)) {
             data.remove(number);

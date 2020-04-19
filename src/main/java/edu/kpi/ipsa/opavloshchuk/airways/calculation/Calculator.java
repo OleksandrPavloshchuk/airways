@@ -15,8 +15,8 @@ public class Calculator {
     private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
 
     public Calculator(List<Flight> allFlights) {
-        if( allFlights==null ) {
-            throw new IllegalArgumentException( "all flights list is null");
+        if (allFlights == null) {
+            throw new IllegalArgumentException("all flights list is null");
         }
         // Робляться копії списків для можливості видалення елементів в процесі роботи алгоритму
         this.allFlights.addAll(allFlights);
@@ -24,7 +24,7 @@ public class Calculator {
                 .filter(Flight::isMandatory)
                 .collect(Collectors.toList()));
     }
-    
+
     public void perform() {
         while (!mandatoryFlights.isEmpty()) {
             final Optional<Flight> originOpt = getMostExpenciveMandatoryFlight();
@@ -46,7 +46,7 @@ public class Calculator {
     public List<List<Flight>> getCycles() {
         return cycles;
     }
-    
+
     public List<Flight> getMandatoryFlightsWithoutCycles() {
         return mandatoryFlightsWithoutCycles;
     }
@@ -114,7 +114,7 @@ public class Calculator {
 
     private static int getCost(List<Flight> route, int index) {
         final Flight thisFlight = route.get(index);
-        int result = route.get(index).getCost();
+        int result = thisFlight.getCost();
         if (index == 0) {
             return result;
         }

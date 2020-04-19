@@ -25,22 +25,24 @@
                 </tr>
                 <tr>
                     <td>
-                        <input type="text" th:field="*{number}"/>
+                        <input type="number" th:field="*{number}"/>
                     </td>
                     <td>
-                        <input type="text" th:field="*{from}"/>
+                        <input type="number" th:field="*{from}"/>
                     </td>
                     <td>
-                        <input type="text" th:field="*{to}"/>
+                        <div class="error" th:if="${validationErrors.containsKey('to')}" 
+                             th:text="${validationErrors.get('to')}" />
+                        <input type="number" th:field="*{to}"/>
                     </td>
                     <td>
-                        <input type="text" th:field="*{cost}"/>
+                        <input type="number" th:field="*{cost}"/>
                     </td>
                     <td>
-                        <input type="text" th:field="*{departureTime}"/>
+                        <input type="number" th:field="*{departureTime}"/>
                     </td>
                     <td>
-                        <input type="text" th:field="*{arrivalTime}"/>
+                        <input type="number" th:field="*{arrivalTime}"/>
                     </td>
                     <td>
                         <select th:field="*{mandatory}">
