@@ -13,7 +13,7 @@ public class FlightValidator implements Function<Flight, Map<String, String>> {
             result.put("to", "Start and end points of flight are the same");
         }
         if (flight.getDepartureTime() > flight.getArrivalTime()) {
-            result.put("arrivalTime", "arrival time is less than departure time");
+            result.put("arrivalTime", "Arrival time is less than departure time");
         }
         return result;
     }

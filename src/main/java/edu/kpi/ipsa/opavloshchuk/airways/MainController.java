@@ -16,6 +16,9 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Головний і єдиний контроллер односторінкового застосування
+ */
 @Controller
 @Scope("session")
 public class MainController {
@@ -25,16 +28,21 @@ public class MainController {
     private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
     private final Map<String, String> validationErrors = new HashMap<>();
 
+    // Відкрити головну сторінку
     @GetMapping("/")
     public String home(Model model) {
-        model.addAttribute("flight", new Flight());
-        model.addAttribute("source", sourceFlightStorage.list());
-        model.addAttribute("cycles", cycles);
-        model.addAttribute("mandatoryFlightsWithoutCycles", mandatoryFlightsWithoutCycles);
-        model.addAttribute("validationErrors", validationErrors);
-        return "home";
+        validationErrors.clear();
+        return goHome(model);
     }
 
+    /**
+     * Отримати з форми новий рейс, провалідувати його, зберегти, коли валідний, 
+     * вивести помилки, коли невалідний і повернутися на головну сторінку
+     * 
+     * @param flight новий рейс
+     * @param model модель даних сторінки
+     * @return назва головної сторінки 
+     */
     @PostMapping("/")
     public String addFlight(@ModelAttribute Flight flight, Model model) {
         validationErrors.clear();
@@ -44,15 +52,28 @@ public class MainController {
         } else {
             validationErrors.putAll(valErrors);
         }
-        return home(model);
+        return goHome(model);
     }
 
+    /**
+     * Видалити рейс за номером і повернутися на головну сторінку
+     * 
+     * @param number номер рейсу
+     * @param model модель даних сторінки
+     * @return назва головної сторінки
+     */
     @GetMapping("/remove")
     public String removeFlight(@RequestParam(name = "number", required = true) int number, Model model) {
         sourceFlightStorage.remove(number);
         return home(model);
     }
 
+    /**
+     * Порахувати цикли і обов'язкові рейси, незадіяні в циклах
+     * 
+     * @param model
+     * @return 
+     */
     @GetMapping("/calculate")
     public String calculate(Model model) {
         cycles.clear();
@@ -61,7 +82,22 @@ public class MainController {
         calculator.perform();
         cycles.addAll(calculator.getCycles());
         mandatoryFlightsWithoutCycles.addAll(calculator.getMandatoryFlightsWithoutCycles());
-        return home(model);
+        return goHome(model);
     }
+    
+    /**
+     * Заповнити модель даних і перейти на головну сторінку
+     * 
+     * @param model
+     * @return 
+     */
+    private String goHome(Model model) {
+        model.addAttribute("flight", new Flight());
+        model.addAttribute("source", sourceFlightStorage.list());
+        model.addAttribute("cycles", cycles);
+        model.addAttribute("mandatoryFlightsWithoutCycles", mandatoryFlightsWithoutCycles);
+        model.addAttribute("validationErrors", validationErrors);
+        return "home";
+    }    
 
 }

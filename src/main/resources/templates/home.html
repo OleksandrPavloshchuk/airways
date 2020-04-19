@@ -5,6 +5,16 @@
         <title>AIRWAYS application</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        <style type="text/css">
+            .error {
+                color: red;
+            }
+            td {
+                vertical-align: top;                    
+            }
+        </style>
+        
     </head>
     <body>
         <h1>AIRWAYS application: 
@@ -31,9 +41,9 @@
                         <input type="number" th:field="*{from}"/>
                     </td>
                     <td>
+                        <input type="number" th:field="*{to}"/>
                         <div class="error" th:if="${validationErrors.containsKey('to')}" 
                              th:text="${validationErrors.get('to')}" />
-                        <input type="number" th:field="*{to}"/>
                     </td>
                     <td>
                         <input type="number" th:field="*{cost}"/>
@@ -43,6 +53,8 @@
                     </td>
                     <td>
                         <input type="number" th:field="*{arrivalTime}"/>
+                        <div class="error" th:if="${validationErrors.containsKey('arrivalTime')}" 
+                             th:text="${validationErrors.get('arrivalTime')}" />
                     </td>
                     <td>
                         <select th:field="*{mandatory}">
