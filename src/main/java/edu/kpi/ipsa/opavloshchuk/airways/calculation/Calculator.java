@@ -130,7 +130,6 @@ public class Calculator {
             // Час відправлення останнього рейсу має бути після часу прибуття передостаннього:
             final Flight beforeLast = base.get(base.size() - 2);
             if (last.getDepartureTime() < beforeLast.getArrivalTime()) {
-                // Останній рейс відлітає раніше, ніж прибуває пере
                 return result;
             }
             if (last.getTo() == home) {
