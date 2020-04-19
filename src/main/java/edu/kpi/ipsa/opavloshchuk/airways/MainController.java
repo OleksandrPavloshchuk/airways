@@ -18,13 +18,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class MainController {
 
     private final FlightsStorage sourceFlightStorage = new FlightsStorage();
-    private final List<List<Flight>> result = new ArrayList<>();
+    private final List<List<Flight>> cycles = new ArrayList<>();
+    private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
 
     @GetMapping("/")
     public String home(Model model) {
         model.addAttribute("flight", new Flight());
         model.addAttribute("source", sourceFlightStorage.list());
-        model.addAttribute("result", result);
+        model.addAttribute("cycles", cycles);
+        model.addAttribute("mandatoryFlightsWithoutCycles", mandatoryFlightsWithoutCycles);
         return "home";
     }
 
@@ -42,8 +44,12 @@ public class MainController {
 
     @GetMapping("/calculate")
     public String calculate(Model model) {
-        result.clear();
-        result.addAll(new Calculator(sourceFlightStorage).get());
+        cycles.clear();
+        mandatoryFlightsWithoutCycles.clear();
+        final Calculator calculator = new Calculator(sourceFlightStorage.list());
+        calculator.perform();
+        cycles.addAll(calculator.getCycles());
+        mandatoryFlightsWithoutCycles.addAll(calculator.getMandatoryFlightsWithoutCycles());
         return home(model);
     }
 

@@ -7,14 +7,25 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 
 public class CalculatorUnitTest {
+    
+    private FlightsStorage storage;
+    
+    @BeforeEach
+    public void setUp() {
+       storage = new FlightsStorage();
+    }
 
     @Test
     public void empty() {
-        final List<List<Flight>> actual = new Calculator(new FlightsStorage()).get();
-        Assertions.assertNotNull(actual);
-        Assertions.assertTrue(actual.isEmpty());
+        final Calculator calculator = new Calculator(new FlightsStorage().list());
+        calculator.perform();
+        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();
+        Assertions.assertNotNull(actualCycles);
+        Assertions.assertTrue(actualCycles.isEmpty());
     }
 
     @Test
@@ -29,9 +40,12 @@ public class CalculatorUnitTest {
                 .withArrivalTime(100)
                 .withMandatory(true)
                 .build());
-        final List<List<Flight>> actual = new Calculator(storage).get();
-        Assertions.assertNotNull(actual);
-        Assertions.assertTrue(actual.isEmpty());
+        final Calculator calculator = new Calculator(storage.list());
+        calculator.perform();
+        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();        
+        Assertions.assertNotNull(actualCycles);
+        Assertions.assertTrue(actualCycles.isEmpty());
     }
 
     @Test
@@ -46,9 +60,12 @@ public class CalculatorUnitTest {
                 .withArrivalTime(100)
                 .withMandatory(true)
                 .build());
-        final List<List<Flight>> actual = new Calculator(storage).get();
-        Assertions.assertNotNull(actual);
-        Assertions.assertTrue(actual.isEmpty());
+        final Calculator calculator = new Calculator(storage.list());
+        calculator.perform();
+        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();     
+        Assertions.assertNotNull(actualCycles);
+        Assertions.assertTrue(actualCycles.isEmpty());
     }
 
     @Test
@@ -81,10 +98,13 @@ public class CalculatorUnitTest {
                 .withArrivalTime(180)
                 .withMandatory(true)
                 .build());
-        final List<List<Flight>> actual = new Calculator(storage).get();
-        Assertions.assertNotNull(actual);
-        Assertions.assertTrue(actual.size() == 1);
-        assertEquals(Arrays.asList(3, 2, 1), actual.get(0));        
+        final Calculator calculator = new Calculator(storage.list());
+        calculator.perform();        
+        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();    
+        Assertions.assertNotNull(actualCycles);
+        Assertions.assertTrue(actualCycles.size() == 1);
+        assertEquals(Arrays.asList(3, 2, 1), actualCycles.get(0));        
     }
 
     private void assertEquals(List<Integer> expected, List<Flight> actual) {

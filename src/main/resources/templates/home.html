@@ -66,10 +66,10 @@
                 </tr>
             </table>
         </form>
-        <div th:if="${!result.isEmpty()}">
+        <div th:if="${!cycles.isEmpty()}">
             <hr/>
-            <h2>Result</h2>
-            <table th:each="route: ${result}">
+            <h2>Detected cycles</h2>
+            <table th:each="cycle : ${cycles}">
                 <tr>
                     <th>Number</th>
                     <th>From</th>
@@ -80,7 +80,7 @@
                     <th>Mandatory</th>
                     <th></th>
                 </tr>
-                <tr th:each="flight : ${route}">
+                <tr th:each="flight : ${cycle}">
                     <td th:text="${flight.number}" />
                     <td th:text="${flight.from}" />
                     <td th:text="${flight.to}" />
@@ -91,5 +91,30 @@
                 </tr>
             </table>
         </div>
+        <div th:if="${!mandatoryFlightsWithoutCycles.isEmpty()}">
+            <hr/>
+            <h2>Detected mandatory flights without cycles</h2>
+            <table>
+                <tr>
+                    <th>Number</th>
+                    <th>From</th>
+                    <th>To</th>
+                    <th>Cost</th>
+                    <th>Departure time</th>
+                    <th>Arrival time</th>
+                    <th>Mandatory</th>
+                    <th></th>
+                </tr>
+                <tr th:each="flight : ${mandatoryFlightsWithoutCycles}">
+                    <td th:text="${flight.number}" />
+                    <td th:text="${flight.from}" />
+                    <td th:text="${flight.to}" />
+                    <td th:text="${flight.cost}" />
+                    <td th:text="${flight.departureTime}" />
+                    <td th:text="${flight.arrivalTime}" />
+                    <td th:text="${flight.mandatory}" />
+                </tr>
+            </table>
+        </div>        
     </body>
 </html>
