@@ -32,7 +32,7 @@ public class CsvParser {
                 if (row == null) {
                     break;
                 }
-                if (counter > 0) {
+                if (counter > 0 && !row.isEmpty()) {
                     parseErrors.clear();
                     final Flight flight = parseRow(counter, row);
                     if (parseErrors.isEmpty()) {
