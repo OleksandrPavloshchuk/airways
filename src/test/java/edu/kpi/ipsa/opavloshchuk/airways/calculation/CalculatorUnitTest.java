@@ -72,9 +72,9 @@ public class CalculatorUnitTest {
                 .withFrom(1)
                 .withTo(2)
                 .withCost(4)
-                .withDepartureTime(500)
-                .withArrivalTime(600)
-                .withMandatory(false)
+                .withDepartureTime(100)
+                .withArrivalTime(160)
+                .withMandatory(true)
                 .build());
         storage.store(new FlightBuilder()
                 .withNumber(2)
@@ -83,7 +83,7 @@ public class CalculatorUnitTest {
                 .withCost(1)
                 .withDepartureTime(200)
                 .withArrivalTime(310)
-                .withMandatory(true)
+                .withMandatory(false)
                 .build());
         storage.store(new FlightBuilder()
                 .withNumber(3)
@@ -92,7 +92,7 @@ public class CalculatorUnitTest {
                 .withCost(5)
                 .withDepartureTime(400)
                 .withArrivalTime(480)
-                .withMandatory(true)
+                .withMandatory(false)
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();        
@@ -100,7 +100,7 @@ public class CalculatorUnitTest {
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();    
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.size() == 1);
-        assertEquals(Arrays.asList(3, 1, 2), actualCycles.get(0));   
+        assertEquals(Arrays.asList(1, 2, 3), actualCycles.get(0));   
         Assertions.assertTrue(actualWithoutCycles.isEmpty());
     }
 
