@@ -27,4 +27,8 @@ public class FlightsStorage {
         return result;
     }
 
+    public void clear() {
+        data.clear();
+    }
+
 }
