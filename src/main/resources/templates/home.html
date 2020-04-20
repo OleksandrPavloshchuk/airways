@@ -22,6 +22,10 @@
         <form method="POST" enctype="multipart/form-data" th:action="@{/uploadCsv}" >
             <input type="file" name="file" /> <input type="submit" value="Upload CSV file" />
         </form>
+        <ul th:if="${!importErrors.isEmpty()}">
+            Import errors:
+            <li th:each="error : ${importErrors}" th:text="${error}"/>
+        </ul>
         <hr/>
         <h2>Source</h2>
         <form action="#" th:action="@{/}" th:object="${flight}" method="POST">
