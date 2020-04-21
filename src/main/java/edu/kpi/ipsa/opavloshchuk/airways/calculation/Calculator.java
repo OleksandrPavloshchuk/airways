@@ -11,7 +11,6 @@ public class Calculator {
 
     private final List<Flight> allFlights = new ArrayList<>();
     private final List<List<Flight>> cycles = new ArrayList<>();
-    private final List<Flight> mandatoryFlights = new ArrayList<>();
     private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
 
     public Calculator(List<Flight> allFlights) {
@@ -20,7 +19,7 @@ public class Calculator {
         }
         // Робляться копії списків для можливості видалення елементів в процесі роботи алгоритму
         this.allFlights.addAll(allFlights);
-        mandatoryFlights.addAll(this.allFlights.stream()
+        mandatoryFlightsWithoutCycles.addAll(this.allFlights.stream()
                 .filter(Flight::isMandatory)
                 .collect(Collectors.toList()));
     }
@@ -29,25 +28,23 @@ public class Calculator {
      * Визначити цикли рейсів та обов'язкові рейси, що не потрапили до циклів
      */
     public void perform() {
-        while (!mandatoryFlights.isEmpty()) {
-            // Обов'язкові рейси обробляються в порядку спадання їхньої ціни
-            final Optional<Flight> originOpt = getMostExpenciveMandatoryFlight();
+        while (!allFlights.isEmpty()) {
+            final Optional<Flight> originOpt = getEarliestFlight();
             if (originOpt.isPresent()) {
                 final Flight origin = originOpt.get();
                 final Optional<List<Flight>> cycleOpt = searchCycle(origin);
                 // Цей рейс оброблений, і він вже нам не потрібний
-                removeFromSource(origin);
+                allFlights.remove(origin);
                 if (cycleOpt.isPresent()) {
                     // Добавити знайдений цикл до списку
                     final List<Flight> cycle = cycleOpt.get();
                     cycles.add(cycle);
                     removeFromSource(cycle);
-                } else {
-                    // Жодного циклу для рейсу не знайдено
-                    mandatoryFlightsWithoutCycles.add(origin);
                 }
             }
+
         }
+
     }
 
     public List<List<Flight>> getCycles() {
@@ -59,24 +56,13 @@ public class Calculator {
     }
 
     /**
-     * Видалити flight зі списку всіх рейсів та обов'язкових рейсів для
-     * запобігання повторного обліку
-     *
-     * @param flight
-     */
-    private void removeFromSource(Flight flight) {
-        mandatoryFlights.remove(flight);
-        allFlights.remove(flight);
-    }
-
-    /**
      * Видалити всі рейси із циклу cycle зі списку всіх рейсів та обов'язкових
      * рейсів для запобігання повторного обліку
      *
      * @param cycle
      */
     private void removeFromSource(List<Flight> cycle) {
-        mandatoryFlights.removeAll(cycle);
+        mandatoryFlightsWithoutCycles.removeAll(cycle);
         allFlights.removeAll(cycle);
     }
 
@@ -87,9 +73,20 @@ public class Calculator {
      * @return
      */
     private Optional<List<Flight>> searchCycle(Flight origin) {
-        // Пошук почати із масиву, що місить лише рейс origin
         return detectCycles(merge(new ArrayList<>(), origin), origin.getFrom())
-                .stream().min((c1, c2) -> getCost(c1) - getCost(c2));
+                .stream()
+                .filter(cycle -> hasMandatoryFlights(cycle))
+                .min((c1, c2) -> getCost(c1) - getCost(c2));
+    }
+
+    /**
+     * Чи містить цикл хоча б один обов'язковий політ?
+     *
+     * @param cycle
+     * @return
+     */
+    private static boolean hasMandatoryFlights(List<Flight> cycle) {
+        return cycle.stream().anyMatch(Flight::isMandatory);
     }
 
     /**
@@ -107,12 +104,23 @@ public class Calculator {
     }
 
     /**
+     * Знайти рейс, що вилітає найраніше
+     *
+     * @return
+     */
+    private Optional<Flight> getEarliestFlight() {
+        return allFlights.stream().min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime());
+    }
+
+    /**
      * Знайти найдорожчий обов'язковий рейс
      *
      * @return
      */
-    private Optional<Flight> getMostExpenciveMandatoryFlight() {
-        return mandatoryFlights.stream().max((f1, f2) -> f1.getCost() - f2.getCost());
+    private Optional<Flight> getMostValuableFlight() {
+        return allFlights.stream()
+                .filter(Flight::isMandatory)
+                .max((f1, f2) -> f1.getCost() - f2.getCost());
     }
 
     /**
