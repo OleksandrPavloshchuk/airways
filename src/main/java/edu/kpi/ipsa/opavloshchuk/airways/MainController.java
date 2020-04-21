@@ -36,6 +36,7 @@ public class MainController {
     // Відкрити головну сторінку
     @GetMapping("/")
     public String home(Model model) {
+        model.addAttribute("flight", new Flight());        
         validationErrors.clear();
         importErrors.clear();
         return goHome(model);
@@ -97,6 +98,7 @@ public class MainController {
         parser.perform();
         parser.getFlights().forEach(flight -> sourceFlightStorage.store(flight));
         importErrors.addAll(parser.getErrors());
+        model.addAttribute("flight", new Flight());        
         return goHome(model);
     }
 
@@ -116,6 +118,7 @@ public class MainController {
         calculator.perform();
         cycles.addAll(calculator.getCycles());
         mandatoryFlightsWithoutCycles.addAll(calculator.getMandatoryFlightsWithoutCycles());
+        model.addAttribute("flight", new Flight());        
         return goHome(model);
     }
 
@@ -126,7 +129,6 @@ public class MainController {
      * @return
      */
     private String goHome(Model model) {
-        model.addAttribute("flight", new Flight());
         model.addAttribute("source", sourceFlightStorage.list());
         model.addAttribute("cycles", cycles);
         model.addAttribute("mandatoryFlightsWithoutCycles", mandatoryFlightsWithoutCycles);
