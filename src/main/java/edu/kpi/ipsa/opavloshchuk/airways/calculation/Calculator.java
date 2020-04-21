@@ -55,7 +55,7 @@ public class Calculator {
      */
     private static int compareCycles(List<Flight> cycle1, List<Flight> cycle2) {
         final Flight mostVal1 = getMostValuableMandatoryFlight(cycle1);
-        final Flight mostVal2 = getMostValuableMandatoryFlight(cycle1);
+        final Flight mostVal2 = getMostValuableMandatoryFlight(cycle2);
         final int diff = mostVal1.getCost() - mostVal2.getCost();
         if (diff != 0) {
             return diff;
