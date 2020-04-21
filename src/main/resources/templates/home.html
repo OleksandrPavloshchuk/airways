@@ -1,141 +1,28 @@
-<!DOCTYPE html>
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Airways calculation</title>
 
-<html xmlns:th="https://www.thymeleaf.org">
-    <head>
-        <title>AIRWAYS application</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        
-        <style type="text/css">
-            .error {
-                color: red;
-            }
-            td {
-                vertical-align: top;                    
-            }
-        </style>
-        
-    </head>
-    <body>
-        <h1>AIRWAYS application: 
-        <a href="#" th:href="@{/calculate}">Calculate</a></h1>
-        <form method="POST" enctype="multipart/form-data" th:action="@{/uploadCsv}" >
-            <input type="file" name="file" /> <input type="submit" value="Upload CSV file" />
-        </form>
-        <ul th:if="${!importErrors.isEmpty()}">
-            Import errors:
-            <li th:each="error : ${importErrors}" th:text="${error}"/>
-        </ul>
-        <hr/>
-        <h2>Source</h2>
-        <form action="#" th:action="@{/}" th:object="${flight}" method="POST">
-            <table>
-                <tr>
-                    <th>Number</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Cost</th>
-                    <th>Departure time</th>
-                    <th>Arrival time</th>
-                    <th>Mandatory</th>
-                    <th></th>
-                </tr>
-                <tr>
-                    <td>
-                        <input type="number" th:field="*{number}"/>
-                    </td>
-                    <td>
-                        <input type="number" th:field="*{from}"/>
-                    </td>
-                    <td>
-                        <input type="number" th:field="*{to}"/>
-                        <div class="error" th:if="${validationErrors.containsKey('to')}" 
-                             th:text="${validationErrors.get('to')}" />
-                    </td>
-                    <td>
-                        <input type="number" th:field="*{cost}"/>
-                    </td>
-                    <td>
-                        <input type="number" th:field="*{departureTime}"/>
-                    </td>
-                    <td>
-                        <input type="number" th:field="*{arrivalTime}"/>
-                        <div class="error" th:if="${validationErrors.containsKey('arrivalTime')}" 
-                             th:text="${validationErrors.get('arrivalTime')}" />
-                    </td>
-                    <td>
-                        <select th:field="*{mandatory}">
-                            <option value="true" th:value="true">true</option>
-                            <option value="false" th:value="false">false</option>
-                        </select>
-                    </td>
-                    <td>
-                        <input type="submit" value="Add or update flight"/>
-                    </td>
-                </tr>
-                <tr th:each="flight : ${source}">
-                    <td th:text="${flight.number}" />
-                    <td th:text="${flight.from}" />
-                    <td th:text="${flight.to}" />
-                    <td th:text="${flight.cost}" />
-                    <td th:text="${flight.departureTime}" />
-                    <td th:text="${flight.arrivalTime}" />
-                    <td th:text="${flight.mandatory}" />
-                    <td>
-                        <a href="#" th:href="@{/remove(number=${flight.number})}">Remove</a>
-                    </td>
-                </tr>
-            </table>
-        </form>
-        <div th:if="${!cycles.isEmpty()}">
-            <hr/>
-            <h2>Detected cycles</h2>
-            <table th:each="cycle : ${cycles}">
-                <tr>
-                    <th>Number</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Cost</th>
-                    <th>Departure time</th>
-                    <th>Arrival time</th>
-                    <th>Mandatory</th>
-                    <th></th>
-                </tr>
-                <tr th:each="flight : ${cycle}">
-                    <td th:text="${flight.number}" />
-                    <td th:text="${flight.from}" />
-                    <td th:text="${flight.to}" />
-                    <td th:text="${flight.cost}" />
-                    <td th:text="${flight.departureTime}" />
-                    <td th:text="${flight.arrivalTime}" />
-                    <td th:text="${flight.mandatory}" />
-                </tr>
-            </table>
-        </div>
-        <div th:if="${!mandatoryFlightsWithoutCycles.isEmpty()}">
-            <hr/>
-            <h2>Detected mandatory flights without cycles</h2>
-            <table>
-                <tr>
-                    <th>Number</th>
-                    <th>From</th>
-                    <th>To</th>
-                    <th>Cost</th>
-                    <th>Departure time</th>
-                    <th>Arrival time</th>
-                    <th>Mandatory</th>
-                    <th></th>
-                </tr>
-                <tr th:each="flight : ${mandatoryFlightsWithoutCycles}">
-                    <td th:text="${flight.number}" />
-                    <td th:text="${flight.from}" />
-                    <td th:text="${flight.to}" />
-                    <td th:text="${flight.cost}" />
-                    <td th:text="${flight.departureTime}" />
-                    <td th:text="${flight.arrivalTime}" />
-                    <td th:text="${flight.mandatory}" />
-                </tr>
-            </table>
-        </div>        
-    </body>
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <h1>Hello, world!</h1>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha384-aJ21OjlMXNL5UyIl/XNwTMqvzeRMZH2w8c5cRVpzpU8Y5bApTppSuUkhZXN0VxHd" crossorigin="anonymous"></script>
+  </body>
 </html>
