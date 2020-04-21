@@ -2,7 +2,9 @@ package edu.kpi.ipsa.opavloshchuk.airways.calculation;
 
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,7 +37,7 @@ public class Calculator {
             detectedCycles.forEach(cycle -> acquire(cycle));
         }
         // Сортувати цикли: за найважливішими обов'язковими польотами і за найдешевшими циклами:
-        cycles.sort(Calculator::compareCycles);
+        distributeAndSortCycles();
     }
 
     public List<List<Flight>> getCycles() {
@@ -45,22 +47,44 @@ public class Calculator {
     public List<Flight> getMandatoryFlightsWithoutCycles() {
         return mandatoryFlightsWithoutCycles;
     }
-
+    
     /**
-     * Порівняння циклів
+     * Розподілити список циклів на підсписки по максимальних значеннях обов'язкових польотів
+     * а потім взяти із кожного списку мінімум по вартості
+     */
+    private void distributeAndSortCycles() {
+        final Map<Integer, List<List<Flight>>> byMaxValue = new HashMap<>();
+        cycles.forEach( cycle -> {
+            final int maxMandatoryFlightValue = cycle.stream()
+                    .filter(Flight::isMandatory)
+                    .mapToInt(Flight::getCost)
+                    .max()
+                    .orElseThrow(()->new IllegalArgumentException("cycle is empty"));
+            List<List<Flight>> sublist = byMaxValue.get(maxMandatoryFlightValue);
+            if( sublist==null ) {
+                sublist = new ArrayList<>();
+                byMaxValue.put(maxMandatoryFlightValue, sublist);                
+            }
+            sublist.add(cycle);
+        });
+        final List<List<Flight>> temp = byMaxValue.values()
+                .stream()
+                .map(Calculator::getByMinValue)
+                .collect(Collectors.toList());
+        cycles.clear();
+        cycles.addAll(temp);
+    }
+    
+    /**
+     * Цикл із найменшим значенням
      * 
-     * @param cycle1
-     * @param cycle2
+     * @param cycles
      * @return 
      */
-    private static int compareCycles(List<Flight> cycle1, List<Flight> cycle2) {
-        final Flight mostVal1 = getMostValuableMandatoryFlight(cycle1);
-        final Flight mostVal2 = getMostValuableMandatoryFlight(cycle2);
-        final int diff = mostVal1.getCost() - mostVal2.getCost();
-        if (diff != 0) {
-            return diff;
-        }
-        return getCost(cycle2) - getCost(cycle1);
+    private static List<Flight> getByMinValue(List<List<Flight>> cycles) {
+        return cycles.stream()
+                .min( (c1, c2) -> getCost(c1) - getCost(c2))
+                .orElseThrow(()->new IllegalArgumentException("cycle is empty"));
     }
 
     /**
@@ -109,18 +133,6 @@ public class Calculator {
         return allFlights.stream()
                 .min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime())
                 .orElseThrow(() -> new IllegalArgumentException("no flights"));
-    }
-
-    /**
-     * Знайти найдорожчий обов'язковий рейс (TODO ще буде треба)
-     *
-     * @return
-     */
-    private static Flight getMostValuableMandatoryFlight(List<Flight> cycle) {
-        return cycle.stream()
-                .filter(Flight::isMandatory)
-                .max((f1, f2) -> f1.getCost() - f2.getCost())
-                .orElseThrow(() -> new IllegalArgumentException("cycle is empty"));
     }
 
     /**
