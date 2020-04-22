@@ -3,6 +3,8 @@ package edu.kpi.ipsa.opavloshchuk.airways.calculation;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Cycle;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -110,26 +112,23 @@ public class Calculator {
      * @return
      */
     private List<Cycle> detectCycles(Cycle base) {
-        final List<Cycle> result = new ArrayList<>();
-        // Останній рейс в маршруті:
         final Flight last = base.getLast();
         if (base.containsBeforeLast()) {
             // Час відправлення останнього рейсу має бути після часу прибуття передостаннього:
             final Flight beforeLast = base.getBeforeLast();
             if (last.getDepartureTime() < beforeLast.getArrivalTime()) {
-                return result;
+                return Collections.emptyList();
             }
             if (last.getTo() == base.getReturnPoint()) {
                 // Останній рейс у ланцюжку повертається додому - цикл знайдено:
-                result.add(base);
-                return result;
+                return Arrays.asList(base);
             }
         }
         // Продовжити рекурсивно для всіх сусідніх рейсів:
-        getNeighbours(last)
+        return getNeighbours(last)
                 .map(flight -> detectCycles(new Cycle(base, flight)))
-                .forEach(newCycles -> result.addAll(newCycles));
-        return result;
+                .flatMap(List::stream)
+                .collect(Collectors.toList());
     }
 
     /**
