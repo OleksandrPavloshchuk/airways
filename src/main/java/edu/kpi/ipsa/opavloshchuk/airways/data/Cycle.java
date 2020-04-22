@@ -21,10 +21,6 @@ public class Cycle {
         this.tag = String.format("from: %d, departure time: %d", flight.getFrom(), flight.getDepartureTime());
     }
 
-    public void addFlight(Flight flight) {
-        flights.add(flight);
-    }
-
     public List<Flight> getFlights() {
         return flights;
     }

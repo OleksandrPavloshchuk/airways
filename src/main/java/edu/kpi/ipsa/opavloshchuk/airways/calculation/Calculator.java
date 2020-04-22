@@ -5,7 +5,6 @@ import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,35 +25,7 @@ public class Calculator {
                 .filter(Flight::isMandatory)
                 .collect(Collectors.toList()));
     }
-
-    /**
-     * Визначити цикли рейсів та обов'язкові рейси, що не потрапили до циклів
-     */
-    public void perform() {
-        final List<Cycle> allCycles = new ArrayList<>();
-
-        while (!allFlights.isEmpty()) {
-            final Flight origin = getEarliestFlight();
-            getCyclesWithMandatoryFlights(origin).forEach(allCycles::add);
-            // Цей рейс оброблений, і він вже нам не потрібний
-            allFlights.remove(origin);
-        }
-
-        final Function<Cycle, Integer> valueCalculator = cycle -> cycle.getValue(Calculator::getWaitCost);
-
-        while (!mandatoryFlights.isEmpty()) {
-            final Flight mostValuable = getMostValuableMandatoryFlight();
-            final Optional<Cycle> cheapestCycleWithMostValuableMandatoryFlight = allCycles.stream()
-                    .filter(cycle -> cycle.contains(mostValuable))
-                    .min((c1, c2) -> valueCalculator.apply(c1) - valueCalculator.apply(c2));
-            mandatoryFlights.remove(mostValuable);
-            if (cheapestCycleWithMostValuableMandatoryFlight.isPresent()) {
-                cycles.add(cheapestCycleWithMostValuableMandatoryFlight.get());
-            } else {
-                mandatoryFlightsWithoutCycles.add(mostValuable);
-            }
-        }
-    }
+    
 
     public List<Cycle> getCycles() {
         return cycles;
@@ -62,7 +33,44 @@ public class Calculator {
 
     public List<Flight> getMandatoryFlightsWithoutCycles() {
         return mandatoryFlightsWithoutCycles;
+    }    
+
+    /**
+     * Визначити цикли рейсів та обов'язкові рейси, що не потрапили до циклів
+     */
+    public void perform() {
+        List<Cycle> allCycles = new ArrayList<>();
+
+        while (!allFlights.isEmpty()) {
+            final Flight origin = getEarliestFlight();
+            getCyclesWithMandatoryFlights(origin).forEach(allCycles::add);
+            allFlights.remove(origin);
+        }
+
+        while (!mandatoryFlights.isEmpty()) {
+            final Flight mostValuable = getMostValuableMandatoryFlight();
+            final Optional<Cycle> cheapestOpt = allCycles.stream()
+                    .filter(cycle -> cycle.contains(mostValuable))
+                    .min((c1, c2) -> c1.getValue(Calculator::getWaitCost) - c2.getValue(Calculator::getWaitCost));
+            mandatoryFlights.remove(mostValuable);
+            if (cheapestOpt.isPresent()) {
+                final Cycle cheapest = cheapestOpt.get();
+                cycles.add(cheapest);
+                allCycles = removeIntersectedCycles(allCycles, cheapest);
+            } else {
+                mandatoryFlightsWithoutCycles.add(mostValuable);
+            }
+        }
     }
+    
+    /**
+     * Видалити всі цикли, що містять рейси, спільні із даним
+    */
+    private List<Cycle> removeIntersectedCycles(List<Cycle> list, Cycle baseCycle) {
+        return list.stream()
+                .filter( cycle -> cycle.getFlights().stream().noneMatch(flight -> baseCycle.contains(flight)))                
+                .collect(Collectors.toList());
+    }    
 
     /**
      * Знайти цикл, що починається із рейсу origin, що має найменшу вартість
@@ -81,8 +89,7 @@ public class Calculator {
      */
     private Flight getEarliestFlight() {
         return allFlights.stream()
-                .min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime())
-                .orElseThrow();
+                .min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime()).orElseThrow();
     }
 
     /**
@@ -92,8 +99,7 @@ public class Calculator {
      */
     private Flight getMostValuableMandatoryFlight() {
         return mandatoryFlights.stream()
-                .max((f1, f2) -> f1.getCost() - f2.getCost())
-                .orElseThrow();
+                .max((f1, f2) -> f1.getCost() - f2.getCost()).orElseThrow();
     }
 
     /**
