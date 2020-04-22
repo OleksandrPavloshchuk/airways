@@ -61,7 +61,7 @@ public class Cycle {
         return getMandatory().mapToInt(Flight::getIncome).max().orElseThrow();
     }
 
-    public int getExpences(Function<Integer, Integer> waitTimeValueCalculator) {
+    public int getExpenses(Function<Integer, Integer> waitTimeValueCalculator) {
         int result = 0;
         for (int i = 0; i < flights.size(); i++) {
             result += flights.get(i).getExpenses() + waitTimeValueCalculator.apply(getWaitTime(i));

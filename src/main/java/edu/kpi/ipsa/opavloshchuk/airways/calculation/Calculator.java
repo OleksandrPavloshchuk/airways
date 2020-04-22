@@ -23,11 +23,8 @@ public class Calculator {
         }
         // Робляться копії списків для можливості видалення елементів в процесі роботи алгоритму
         this.allFlights.addAll(allFlights);
-        mandatoryFlights.addAll(this.allFlights.stream()
-                .filter(Flight::isMandatory)
-                .collect(Collectors.toList()));
+        this.allFlights.stream().filter(Flight::isMandatory).forEach(mandatoryFlights::add);
     }
-    
 
     public List<Cycle> getCycles() {
         return cycles;
@@ -35,7 +32,7 @@ public class Calculator {
 
     public List<Flight> getMandatoryFlightsWithoutCycles() {
         return mandatoryFlightsWithoutCycles;
-    }    
+    }
 
     /**
      * Визначити цикли рейсів та обов'язкові рейси, що не потрапили до циклів
@@ -51,9 +48,7 @@ public class Calculator {
 
         while (!mandatoryFlights.isEmpty()) {
             final Flight mostValuable = getMandatoryFlightWithMaxIncome();
-            final Optional<Cycle> cheapestOpt = allCycles.stream()
-                    .filter(cycle -> cycle.contains(mostValuable))
-                    .min((c1, c2) -> c1.getExpences(Calculator::getWaitCost) - c2.getExpences(Calculator::getWaitCost));
+            final Optional<Cycle> cheapestOpt = getCheepestCycle(allCycles, mostValuable);
             mandatoryFlights.remove(mostValuable);
             if (cheapestOpt.isPresent()) {
                 final Cycle cheapest = cheapestOpt.get();
@@ -64,15 +59,28 @@ public class Calculator {
             }
         }
     }
-    
+
+    /**
+     * Визначити мінімальний за витратами цикл із allCycles, що містить політ flight
+     * 
+     * @param allCycles
+     * @param flight
+     * @return 
+     */
+    private Optional<Cycle> getCheepestCycle(List<Cycle> allCycles, Flight flight) {
+        return allCycles.stream()
+                .filter(cycle -> cycle.contains(flight))
+                .min((c1, c2) -> c1.getExpenses(Calculator::getWaitCost) - c2.getExpenses(Calculator::getWaitCost));
+    }
+
     /**
      * Видалити всі цикли, що містять рейси, спільні із даним
-    */
+     */
     private List<Cycle> removeIntersectedCycles(List<Cycle> list, Cycle baseCycle) {
         return list.stream()
-                .filter( cycle -> cycle.getFlights().stream().noneMatch(flight -> baseCycle.contains(flight)))                
+                .filter(cycle -> cycle.getFlights().stream().noneMatch(flight -> baseCycle.contains(flight)))
                 .collect(Collectors.toList());
-    }    
+    }
 
     /**
      * Знайти цикл, що починається із рейсу origin, що має найменшу вартість
@@ -101,7 +109,7 @@ public class Calculator {
      */
     private Flight getMandatoryFlightWithMaxIncome() {
         return mandatoryFlights.stream()
-                .max((f1, f2) -> f1.getIncome()- f2.getIncome()).orElseThrow();
+                .max((f1, f2) -> f1.getIncome() - f2.getIncome()).orElseThrow();
     }
 
     /**
