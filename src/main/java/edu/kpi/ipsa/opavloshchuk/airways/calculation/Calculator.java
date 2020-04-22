@@ -3,9 +3,8 @@ package edu.kpi.ipsa.opavloshchuk.airways.calculation;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Cycle;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,6 +13,7 @@ public class Calculator {
 
     private final List<Flight> allFlights = new ArrayList<>();
     private final List<Cycle> cycles = new ArrayList<>();
+    private final List<Flight> mandatoryFlights = new ArrayList<>();
     private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
 
     public Calculator(List<Flight> allFlights) {
@@ -22,7 +22,7 @@ public class Calculator {
         }
         // Робляться копії списків для можливості видалення елементів в процесі роботи алгоритму
         this.allFlights.addAll(allFlights);
-        mandatoryFlightsWithoutCycles.addAll(this.allFlights.stream()
+        mandatoryFlights.addAll(this.allFlights.stream()
                 .filter(Flight::isMandatory)
                 .collect(Collectors.toList()));
     }
@@ -31,16 +31,29 @@ public class Calculator {
      * Визначити цикли рейсів та обов'язкові рейси, що не потрапили до циклів
      */
     public void perform() {
+        final List<Cycle> allCycles = new ArrayList<>();
+
         while (!allFlights.isEmpty()) {
             final Flight origin = getEarliestFlight();
-            final Stream<Cycle> detectedCycles = getCyclesWithMandatoryFlights(origin);
+            getCyclesWithMandatoryFlights(origin).forEach(allCycles::add);
             // Цей рейс оброблений, і він вже нам не потрібний
             allFlights.remove(origin);
-            detectedCycles.forEach(this::acquire);
         }
-        // Сортувати цикли: за найважливішими обов'язковими польотами і за найдешевшими циклами:
-        distributeAndSortCycles();
-        detectMandatoryFlightsWithoutCycles();
+
+        final Function<Cycle, Integer> valueCalculator = cycle -> cycle.getValue(Calculator::getWaitCost);
+
+        while (!mandatoryFlights.isEmpty()) {
+            final Flight mostValuable = getMostValuableMandatoryFlight();
+            final Optional<Cycle> cheapestCycleWithMostValuableMandatoryFlight = allCycles.stream()
+                    .filter(cycle -> cycle.contains(mostValuable))
+                    .min((c1, c2) -> valueCalculator.apply(c1) - valueCalculator.apply(c2));
+            mandatoryFlights.remove(mostValuable);
+            if (cheapestCycleWithMostValuableMandatoryFlight.isPresent()) {
+                cycles.add(cheapestCycleWithMostValuableMandatoryFlight.get());
+            } else {
+                mandatoryFlightsWithoutCycles.add(mostValuable);
+            }
+        }
     }
 
     public List<Cycle> getCycles() {
@@ -49,67 +62,6 @@ public class Calculator {
 
     public List<Flight> getMandatoryFlightsWithoutCycles() {
         return mandatoryFlightsWithoutCycles;
-    }
-
-    /**
-     * Розподілити список циклів на підсписки по максимальних значеннях обов'язкових польотів
-     * а потім взяти із кожного списку мінімум по вартості
-     */
-    private void distributeAndSortCycles() {
-        final Map<Integer, List<Cycle>> byMaxValue = new HashMap<>();
-        cycles.forEach(cycle -> add(byMaxValue, cycle));
-        final List<Cycle> temp = byMaxValue.values()
-                .stream()
-                .map(Calculator::getByMinValue)
-                .collect(Collectors.toList());
-        cycles.clear();
-        cycles.addAll(temp);
-    }
-
-    /**
-     * Добавити цикл до списку за максимальною ціною обов'язкового рейсу
-     *
-     * @param map
-     * @param value
-     */
-    private void add(Map<Integer, List<Cycle>> map, Cycle value) {
-        final int key = value.getMaxMandatoryFlightValue();
-        List<Cycle> list = map.get(key);
-        if (list == null) {
-            list = new ArrayList<>();
-            map.put(key, list);
-        }
-        list.add(value);
-    }
-
-    /**
-     * Прибрати зі списку обов'язкових ті, які потрапили до циклів
-     */
-    private void detectMandatoryFlightsWithoutCycles() {
-        cycles.forEach(cycle -> cycle.getMandatory().forEach(mandatoryFlightsWithoutCycles::remove));
-    }
-
-    /**
-     * Цикл із найменшим значенням
-     *
-     * @param cycles
-     * @return
-     */
-    private static Cycle getByMinValue(List<Cycle> cycles) {
-        final Function<Cycle, Integer> valueCalculator = cycle -> cycle.getValue(Calculator::getWaitCost);
-        return cycles.stream()
-                .min((c1, c2) -> valueCalculator.apply(c1) - valueCalculator.apply(c2))
-                .orElseThrow();
-    }
-
-    /**
-     * Додати цикл до обраних
-     *
-     * @param cycle
-     */
-    private void acquire(Cycle cycle) {
-        cycles.add(cycle);
-        allFlights.removeAll(cycle.getFlights());
     }
 
     /**
@@ -130,6 +82,17 @@ public class Calculator {
     private Flight getEarliestFlight() {
         return allFlights.stream()
                 .min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime())
+                .orElseThrow();
+    }
+
+    /**
+     * Знайти найважливіший обов'язковий рейс
+     *
+     * @return
+     */
+    private Flight getMostValuableMandatoryFlight() {
+        return mandatoryFlights.stream()
+                .max((f1, f2) -> f1.getCost() - f2.getCost())
                 .orElseThrow();
     }
 

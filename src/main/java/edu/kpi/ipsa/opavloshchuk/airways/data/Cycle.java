@@ -33,6 +33,10 @@ public class Cycle {
         return tag;
     }
 
+    public boolean contains(Flight flight) {
+        return flights.contains(flight);
+    }
+
     public boolean containsMandatory() {
         return flights.stream().anyMatch(Flight::isMandatory);
     }
