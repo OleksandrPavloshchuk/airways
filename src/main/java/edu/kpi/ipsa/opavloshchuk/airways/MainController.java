@@ -3,6 +3,7 @@ package edu.kpi.ipsa.opavloshchuk.airways;
 import java.util.List;
 import java.util.ArrayList;
 import edu.kpi.ipsa.opavloshchuk.airways.calculation.Calculator;
+import edu.kpi.ipsa.opavloshchuk.airways.data.Cycle;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightValidator;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightsStorage;
@@ -28,7 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class MainController {
 
     private final FlightsStorage sourceFlightStorage = new FlightsStorage();
-    private final List<List<Flight>> cycles = new ArrayList<>();
+    private final List<Cycle> cycles = new ArrayList<>();
     private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
     private final Map<String, String> validationErrors = new HashMap<>();
     private final List<String> importErrors = new ArrayList<>();

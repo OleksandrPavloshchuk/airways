@@ -92,6 +92,9 @@
             <h2>Detected cycles</h2>
             <table th:each="cycle : ${cycles}">
                 <tr>
+                    <td colspan="7" th:text="${cycle.getTag()}"/>
+                </tr>
+                <tr>
                     <th>Number</th>
                     <th>From</th>
                     <th>To</th>
@@ -99,9 +102,8 @@
                     <th>Departure time</th>
                     <th>Arrival time</th>
                     <th>Mandatory</th>
-                    <th></th>
                 </tr>
-                <tr th:each="flight : ${cycle}">
+                <tr th:each="flight : ${cycle.getFlights()}">
                     <td th:text="${flight.number}" />
                     <td th:text="${flight.from}" />
                     <td th:text="${flight.to}" />
@@ -124,7 +126,6 @@
                     <th>Departure time</th>
                     <th>Arrival time</th>
                     <th>Mandatory</th>
-                    <th></th>
                 </tr>
                 <tr th:each="flight : ${mandatoryFlightsWithoutCycles}">
                     <td th:text="${flight.number}" />

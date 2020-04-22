@@ -1,5 +1,6 @@
 package edu.kpi.ipsa.opavloshchuk.airways.calculation;
 
+import edu.kpi.ipsa.opavloshchuk.airways.data.Cycle;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightsStorage;
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class CalculatorUnitTest {
     public void empty() {
         final Calculator calculator = new Calculator(new FlightsStorage().list());
         calculator.perform();
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.isEmpty());
@@ -35,7 +36,7 @@ public class CalculatorUnitTest {
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();        
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.isEmpty());
@@ -57,7 +58,7 @@ public class CalculatorUnitTest {
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();     
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.isEmpty());
@@ -96,11 +97,11 @@ public class CalculatorUnitTest {
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();        
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();    
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.size() == 1);
-        assertEquals(Arrays.asList(1, 2, 3), actualCycles.get(0));   
+        assertEquals(Arrays.asList(1, 2, 3), actualCycles.get(0).getFlights());   
         Assertions.assertTrue(actualWithoutCycles.isEmpty());
     }
 
