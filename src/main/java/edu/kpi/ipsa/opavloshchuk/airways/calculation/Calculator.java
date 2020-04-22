@@ -50,10 +50,10 @@ public class Calculator {
         }
 
         while (!mandatoryFlights.isEmpty()) {
-            final Flight mostValuable = getMostValuableMandatoryFlight();
+            final Flight mostValuable = getMandatoryFlightWithMaxIncome();
             final Optional<Cycle> cheapestOpt = allCycles.stream()
                     .filter(cycle -> cycle.contains(mostValuable))
-                    .min((c1, c2) -> c1.getValue(Calculator::getWaitCost) - c2.getValue(Calculator::getWaitCost));
+                    .min((c1, c2) -> c1.getExpences(Calculator::getWaitCost) - c2.getExpences(Calculator::getWaitCost));
             mandatoryFlights.remove(mostValuable);
             if (cheapestOpt.isPresent()) {
                 final Cycle cheapest = cheapestOpt.get();
@@ -99,9 +99,9 @@ public class Calculator {
      *
      * @return
      */
-    private Flight getMostValuableMandatoryFlight() {
+    private Flight getMandatoryFlightWithMaxIncome() {
         return mandatoryFlights.stream()
-                .max((f1, f2) -> f1.getCost() - f2.getCost()).orElseThrow();
+                .max((f1, f2) -> f1.getIncome()- f2.getIncome()).orElseThrow();
     }
 
     /**

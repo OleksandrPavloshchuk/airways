@@ -5,7 +5,8 @@ public class Flight {
     private int number;
     private int from;
     private int to;
-    private int cost;
+    private int income;
+    private int expenses;
     private int departureTime;
     private int arrivalTime;
     private boolean mandatory;
@@ -34,14 +35,6 @@ public class Flight {
         this.to = to;
     }
 
-    public int getCost() {
-        return cost;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
     public int getDepartureTime() {
         return departureTime;
     }
@@ -64,6 +57,22 @@ public class Flight {
 
     public void setMandatory(boolean mandatory) {
         this.mandatory = mandatory;
+    }
+
+    public int getIncome() {
+        return income;
+    }
+
+    public void setIncome(int income) {
+        this.income = income;
+    }
+
+    public int getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(int expenses) {
+        this.expenses = expenses;
     }
 
 }

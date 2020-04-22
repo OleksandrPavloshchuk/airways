@@ -57,14 +57,14 @@ public class Cycle {
         return flights.get(0).getFrom();
     }
 
-    public int getMaxMandatoryFlightValue() {
-        return getMandatory().mapToInt(Flight::getCost).max().orElseThrow();
+    public int getMandatoryFlightWithMaxIncome() {
+        return getMandatory().mapToInt(Flight::getIncome).max().orElseThrow();
     }
 
-    public int getValue(Function<Integer, Integer> waitTimeValueCalculator) {
+    public int getExpences(Function<Integer, Integer> waitTimeValueCalculator) {
         int result = 0;
         for (int i = 0; i < flights.size(); i++) {
-            result += flights.get(i).getCost() - waitTimeValueCalculator.apply(getWaitTime(i));
+            result += flights.get(i).getExpenses() + waitTimeValueCalculator.apply(getWaitTime(i));
         }
         return result;
     }

@@ -68,10 +68,11 @@ public class CsvParser {
         result.setNumber(parseInt(rowNum, str, 0));
         result.setFrom(parseInt(rowNum, str, 1));
         result.setTo(parseInt(rowNum, str, 2));
-        result.setCost(parseInt(rowNum, str, 3));
-        result.setDepartureTime(parseInt(rowNum, str, 4));
-        result.setArrivalTime(parseInt(rowNum, str, 5));
-        result.setMandatory(parseBool(rowNum, str, 6));
+        result.setIncome(parseInt(rowNum, str, 3));
+        result.setExpenses(parseInt(rowNum, str, 4));
+        result.setDepartureTime(parseInt(rowNum, str, 5));
+        result.setArrivalTime(parseInt(rowNum, str, 6));
+        result.setMandatory(parseBool(rowNum, str, 7));
         return result;
     }
 
