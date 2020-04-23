@@ -6,13 +6,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
  * Обчислювач потрібних циклів та обов'язкових рейсів поза циклами
- * 
+ *
  */
 public class Calculator {
 
@@ -77,10 +78,10 @@ public class Calculator {
 
     /**
      * Визначити мінімальний за витратами цикл із allCycles, що містить політ flight
-     * 
+     *
      * @param allCycles
      * @param flight
-     * @return 
+     * @return
      */
     private Optional<Cycle> getCheepestCycle(List<Cycle> allCycles, Flight flight) {
         return allCycles.stream()
@@ -113,7 +114,8 @@ public class Calculator {
      * @return
      */
     private Flight getEarliestFlight() {
-        return allFlights.stream().min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime()).orElseThrow();
+        return allFlights.stream().min((f1, f2) -> f1.getDepartureTime() - f2.getDepartureTime())
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     /**
@@ -122,7 +124,8 @@ public class Calculator {
      * @return
      */
     private Flight getMandatoryFlightWithMaxIncome() {
-        return mandatoryFlights.stream().max((f1, f2) -> f1.getIncome() - f2.getIncome()).orElseThrow();
+        return mandatoryFlights.stream().max((f1, f2) -> f1.getIncome() - f2.getIncome())
+                .orElseThrow(() -> new NoSuchElementException());
     }
 
     /**
