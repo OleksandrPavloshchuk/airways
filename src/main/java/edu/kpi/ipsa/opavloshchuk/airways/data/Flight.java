@@ -1,15 +1,18 @@
 package edu.kpi.ipsa.opavloshchuk.airways.data;
 
+/**
+ * Рейс
+ */
 public class Flight {
 
-    private int number;
-    private int from;
-    private int to;
-    private int income;
-    private int expenses;
-    private int departureTime;
-    private int arrivalTime;
-    private boolean mandatory;
+    private int number; // номер. Унікальний ключ
+    private int from; // аеропорт, звідки рейс починається
+    private int to; // аеропорт, де рейс закінчується
+    private int income; // прибуток від рейсу або пріорітет рейсу
+    private int expenses; // витрати на рейс
+    private int departureTime; // час відльоту
+    private int arrivalTime; // час прильоту
+    private boolean mandatory; // рейс є обов'язковим?
 
     public int getNumber() {
         return number;

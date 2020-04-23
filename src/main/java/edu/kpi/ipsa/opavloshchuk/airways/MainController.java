@@ -37,8 +37,7 @@ public class MainController {
     // Відкрити головну сторінку
     @GetMapping("/")
     public String home(Model model) {
-        validationErrors.clear();
-        importErrors.clear();
+        clearErrors();
         return goHome(model);
     }
 
@@ -52,8 +51,7 @@ public class MainController {
      */
     @PostMapping("/")
     public String addFlight(@ModelAttribute Flight flight, Model model) {
-        validationErrors.clear();
-        importErrors.clear();
+        clearErrors();
         final Map<String, String> valErrors = new FlightValidator().apply(flight);
         if (valErrors.isEmpty()) {
             sourceFlightStorage.store(flight);
@@ -73,8 +71,7 @@ public class MainController {
     @GetMapping("/remove")
     public String removeFlight(@RequestParam(name = "number", required = true) int number, Model model) {
         sourceFlightStorage.remove(number);
-        importErrors.clear();
-        validationErrors.clear();
+        clearErrors();
         return goHome(model);
     }
 
@@ -92,8 +89,7 @@ public class MainController {
         cycles.clear();
         sourceFlightStorage.clear();
         mandatoryFlightsWithoutCycles.clear();
-        validationErrors.clear();
-        importErrors.clear();
+        clearErrors();
         final CsvParser parser = new CsvParser(file.getBytes());
         parser.perform();
         parser.getFlights().forEach(flight -> sourceFlightStorage.store(flight));
@@ -102,7 +98,7 @@ public class MainController {
     }
 
     /**
-     * Порахувати цикли і обов'язкові рейси, незадіяні в циклах
+     * Порахувати цикли і обов'язкові рейси поза циклами
      *
      * @param model
      * @return
@@ -111,8 +107,7 @@ public class MainController {
     public String calculate(Model model) {
         cycles.clear();
         mandatoryFlightsWithoutCycles.clear();
-        importErrors.clear();
-        validationErrors.clear();
+        clearErrors();
         final Calculator calculator = new Calculator(sourceFlightStorage.list());
         calculator.perform();
         cycles.addAll(calculator.getCycles());
@@ -134,6 +129,14 @@ public class MainController {
         model.addAttribute("validationErrors", validationErrors);
         model.addAttribute("importErrors", importErrors);
         return "home";
+    }
+    
+    /**
+     * Почистити всі повідомлення про помилки
+     */
+    private void clearErrors() {
+        importErrors.clear();
+        validationErrors.clear();        
     }
 
 }

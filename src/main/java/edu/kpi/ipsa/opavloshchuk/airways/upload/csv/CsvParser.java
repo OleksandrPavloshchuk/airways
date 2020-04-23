@@ -11,38 +11,64 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * Завантажити рейси із CSV-файлу
+ * 
+ * Файл повинен мати таку структуру:
+ * 
+ * number,from,to,income,expenses,departureTime,arrivalTime,mandatory
+ * number,from,to,income,expenses,departureTime,arrivalTime,mandatory
+ * ...
+ * 
+ * Поля розділені комами. Перший рядок вважається заголовком та ігнорується.
+ * Поле 'mandatory' може бути true або false, всі інші - цілі числа.
+ */
 public class CsvParser {
 
-    private final byte[] content;
-    private final List<Flight> flights = new ArrayList<>();
-    private final List<String> errors = new ArrayList<>();
-    private final List<String> parseErrors = new ArrayList<>();
+    private final byte[] content; // CSV-контент для парсингу
+    private final List<Flight> flights = new ArrayList<>(); // отриманий список рейсів
+    private final List<String> errors = new ArrayList<>(); // загальний список помилок
+    private final List<String> parseErrors = new ArrayList<>(); // тимчасовий список помилок парсингу одного рядка
 
     public CsvParser(byte[] content) {
+        if( content==null ) {
+            throw new IllegalArgumentException("content is null");            
+        }
         this.content = content;
     }
 
+    /**
+     * Розпарсити контент і сформувати список рейсів та список помилок
+     * 
+     * @throws IOException 
+     */
     public void perform() throws IOException {
-        final ByteArrayInputStream inputStream = new ByteArrayInputStream(content);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
+        try (final BufferedReader reader = new BufferedReader(new InputStreamReader(new ByteArrayInputStream(content)))) {
+            // Лічильник потрібен для повідомлень про помилки
             int counter = -1;
             while (true) {
                 counter++;
                 final String row = reader.readLine();
                 if (row == null) {
+                    // Контент прочитано до кінця
                     break;
                 }
+                // Пропустити перший рядок і всі порожні рядки
                 if (counter > 0 && !row.isEmpty()) {
                     parseErrors.clear();
                     final Flight flight = parseRow(counter, row);
                     if (parseErrors.isEmpty()) {
+                        // Помилок парсингу нема - валідувати новий рейс
                         final Map<String, String> validationErrors = new FlightValidator().apply(flight);
                         if (validationErrors.isEmpty()) {
+                            // Помилок валідації нема - добавити рейс до результату
                             flights.add(flight);
                         } else {
+                            // Є помилки валідації - добавити їх до списку
                             consumeValidationErrors(counter, validationErrors);
                         }
                     } else {
+                        // Є помилки парсингу - добавити їх до списку
                         errors.addAll(parseErrors);
                     }                            
                 }
@@ -62,6 +88,13 @@ public class CsvParser {
         validationErrors.values().forEach(text -> errors.add(String.format("row %d: %s", rowNum, text)));
     }
 
+    /**
+     * Розпарсити рядок і створити рейс
+     * 
+     * @param rowNum
+     * @param row
+     * @return 
+     */
     private Flight parseRow(int rowNum, String row) {
         final String[] str = row.split("[,]");
         final Flight result = new Flight();
