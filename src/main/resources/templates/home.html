@@ -34,7 +34,8 @@
                     <th>Number</th>
                     <th>From</th>
                     <th>To</th>
-                    <th>Cost</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
                     <th>Departure time</th>
                     <th>Arrival time</th>
                     <th>Mandatory</th>
@@ -53,8 +54,11 @@
                              th:text="${validationErrors.get('to')}" />
                     </td>
                     <td>
-                        <input type="number" th:field="*{cost}"/>
+                        <input type="number" th:field="*{income}"/>
                     </td>
+                    <td>
+                        <input type="number" th:field="*{expenses}"/>
+                    </td>                    
                     <td>
                         <input type="number" th:field="*{departureTime}"/>
                     </td>
@@ -77,7 +81,8 @@
                     <td th:text="${flight.number}" />
                     <td th:text="${flight.from}" />
                     <td th:text="${flight.to}" />
-                    <td th:text="${flight.cost}" />
+                    <td th:text="${flight.income}" />
+                    <td th:text="${flight.expenses}" />
                     <td th:text="${flight.departureTime}" />
                     <td th:text="${flight.arrivalTime}" />
                     <td th:text="${flight.mandatory}" />
@@ -92,20 +97,24 @@
             <h2>Detected cycles</h2>
             <table th:each="cycle : ${cycles}">
                 <tr>
+                    <td colspan="7" th:text="${cycle.getTag()}"/>
+                </tr>
+                <tr>
                     <th>Number</th>
                     <th>From</th>
                     <th>To</th>
-                    <th>Cost</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
                     <th>Departure time</th>
                     <th>Arrival time</th>
                     <th>Mandatory</th>
-                    <th></th>
                 </tr>
-                <tr th:each="flight : ${cycle}">
+                <tr th:each="flight : ${cycle.getFlights()}">
                     <td th:text="${flight.number}" />
                     <td th:text="${flight.from}" />
                     <td th:text="${flight.to}" />
-                    <td th:text="${flight.cost}" />
+                    <td th:text="${flight.income}" />
+                    <td th:text="${flight.expenses}" />
                     <td th:text="${flight.departureTime}" />
                     <td th:text="${flight.arrivalTime}" />
                     <td th:text="${flight.mandatory}" />
@@ -120,17 +129,18 @@
                     <th>Number</th>
                     <th>From</th>
                     <th>To</th>
-                    <th>Cost</th>
+                    <th>Income</th>
+                    <th>Expenses</th>
                     <th>Departure time</th>
                     <th>Arrival time</th>
                     <th>Mandatory</th>
-                    <th></th>
                 </tr>
                 <tr th:each="flight : ${mandatoryFlightsWithoutCycles}">
                     <td th:text="${flight.number}" />
                     <td th:text="${flight.from}" />
                     <td th:text="${flight.to}" />
-                    <td th:text="${flight.cost}" />
+                    <td th:text="${flight.income}" />
+                    <td th:text="${flight.expenses}" />
                     <td th:text="${flight.departureTime}" />
                     <td th:text="${flight.arrivalTime}" />
                     <td th:text="${flight.mandatory}" />

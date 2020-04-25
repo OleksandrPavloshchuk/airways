@@ -1,5 +1,6 @@
 package edu.kpi.ipsa.opavloshchuk.airways.calculation;
 
+import edu.kpi.ipsa.opavloshchuk.airways.data.Cycle;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightsStorage;
 import java.util.Arrays;
@@ -14,7 +15,7 @@ public class CalculatorUnitTest {
     public void empty() {
         final Calculator calculator = new Calculator(new FlightsStorage().list());
         calculator.perform();
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.isEmpty());
@@ -28,14 +29,15 @@ public class CalculatorUnitTest {
                 .withNumber(1)
                 .withFrom(1)
                 .withTo(2)
-                .withCost(100)
+                .withIncome(100)
+                .withExpenses(20)                
                 .withDepartureTime(0)
                 .withArrivalTime(100)
                 .withMandatory(true)
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();        
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.isEmpty());
@@ -50,14 +52,15 @@ public class CalculatorUnitTest {
                 .withNumber(1)
                 .withFrom(1)
                 .withTo(2)
-                .withCost(100)
+                .withIncome(110)
+                .withExpenses(60)                
                 .withDepartureTime(0)
                 .withArrivalTime(100)
                 .withMandatory(false)
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();     
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.isEmpty());
@@ -71,7 +74,8 @@ public class CalculatorUnitTest {
                 .withNumber(1)
                 .withFrom(1)
                 .withTo(2)
-                .withCost(4)
+                .withIncome(110)
+                .withExpenses(60) 
                 .withDepartureTime(100)
                 .withArrivalTime(160)
                 .withMandatory(true)
@@ -80,7 +84,8 @@ public class CalculatorUnitTest {
                 .withNumber(2)
                 .withFrom(2)
                 .withTo(3)
-                .withCost(1)
+                .withIncome(100)
+                .withExpenses(60) 
                 .withDepartureTime(200)
                 .withArrivalTime(310)
                 .withMandatory(false)
@@ -89,18 +94,19 @@ public class CalculatorUnitTest {
                 .withNumber(3)
                 .withFrom(3)
                 .withTo(1)
-                .withCost(5)
+                .withIncome(120)
+                .withExpenses(60) 
                 .withDepartureTime(400)
                 .withArrivalTime(480)
                 .withMandatory(false)
                 .build());
         final Calculator calculator = new Calculator(storage.list());
         calculator.perform();        
-        final List<List<Flight>> actualCycles = calculator.getCycles();
+        final List<Cycle> actualCycles = calculator.getCycles();
         final List<Flight> actualWithoutCycles = calculator.getMandatoryFlightsWithoutCycles();    
         Assertions.assertNotNull(actualCycles);
         Assertions.assertTrue(actualCycles.size() == 1);
-        assertEquals(Arrays.asList(1, 2, 3), actualCycles.get(0));   
+        assertEquals(Arrays.asList(1, 2, 3), actualCycles.get(0).getFlights());   
         Assertions.assertTrue(actualWithoutCycles.isEmpty());
     }
 
@@ -128,11 +134,16 @@ public class CalculatorUnitTest {
             return this;
         }
 
-        private FlightBuilder withCost(int cost) {
-            flight.setCost(cost);
+        private FlightBuilder withIncome(int income) {
+            flight.setIncome(income);
             return this;
         }
 
+        private FlightBuilder withExpenses(int expences) {
+            flight.setExpenses(expences);
+            return this;
+        }
+        
         private FlightBuilder withDepartureTime(int departureTime) {
             flight.setDepartureTime(departureTime);
             return this;

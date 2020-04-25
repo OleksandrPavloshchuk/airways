@@ -1,14 +1,18 @@
 package edu.kpi.ipsa.opavloshchuk.airways.data;
 
+/**
+ * Рейс
+ */
 public class Flight {
 
-    private int number;
-    private int from;
-    private int to;
-    private int cost;
-    private int departureTime;
-    private int arrivalTime;
-    private boolean mandatory;
+    private int number; // номер. Унікальний ключ
+    private int from; // аеропорт, звідки рейс починається
+    private int to; // аеропорт, де рейс закінчується
+    private int income; // прибуток від рейсу або пріорітет рейсу
+    private int expenses; // витрати на рейс
+    private int departureTime; // час відльоту
+    private int arrivalTime; // час прильоту
+    private boolean mandatory; // рейс є обов'язковим?
 
     public int getNumber() {
         return number;
@@ -34,14 +38,6 @@ public class Flight {
         this.to = to;
     }
 
-    public int getCost() {
-        return cost;
-    }
-
-    public void setCost(int cost) {
-        this.cost = cost;
-    }
-
     public int getDepartureTime() {
         return departureTime;
     }
@@ -64,6 +60,22 @@ public class Flight {
 
     public void setMandatory(boolean mandatory) {
         this.mandatory = mandatory;
+    }
+
+    public int getIncome() {
+        return income;
+    }
+
+    public void setIncome(int income) {
+        this.income = income;
+    }
+
+    public int getExpenses() {
+        return expenses;
+    }
+
+    public void setExpenses(int expenses) {
+        this.expenses = expenses;
     }
 
 }

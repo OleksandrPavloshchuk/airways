@@ -3,6 +3,7 @@ package edu.kpi.ipsa.opavloshchuk.airways;
 import java.util.List;
 import java.util.ArrayList;
 import edu.kpi.ipsa.opavloshchuk.airways.calculation.Calculator;
+import edu.kpi.ipsa.opavloshchuk.airways.data.Cycle;
 import edu.kpi.ipsa.opavloshchuk.airways.data.Flight;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightValidator;
 import edu.kpi.ipsa.opavloshchuk.airways.data.FlightsStorage;
@@ -28,7 +29,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class MainController {
 
     private final FlightsStorage sourceFlightStorage = new FlightsStorage();
-    private final List<List<Flight>> cycles = new ArrayList<>();
+    private final List<Cycle> cycles = new ArrayList<>();
     private final List<Flight> mandatoryFlightsWithoutCycles = new ArrayList<>();
     private final Map<String, String> validationErrors = new HashMap<>();
     private final List<String> importErrors = new ArrayList<>();
@@ -36,8 +37,7 @@ public class MainController {
     // Відкрити головну сторінку
     @GetMapping("/")
     public String home(Model model) {
-        validationErrors.clear();
-        importErrors.clear();
+        clearErrors();
         return goHome(model);
     }
 
@@ -51,8 +51,7 @@ public class MainController {
      */
     @PostMapping("/")
     public String addFlight(@ModelAttribute Flight flight, Model model) {
-        validationErrors.clear();
-        importErrors.clear();
+        clearErrors();
         final Map<String, String> valErrors = new FlightValidator().apply(flight);
         if (valErrors.isEmpty()) {
             sourceFlightStorage.store(flight);
@@ -72,8 +71,7 @@ public class MainController {
     @GetMapping("/remove")
     public String removeFlight(@RequestParam(name = "number", required = true) int number, Model model) {
         sourceFlightStorage.remove(number);
-        importErrors.clear();
-        validationErrors.clear();
+        clearErrors();
         return goHome(model);
     }
 
@@ -91,8 +89,7 @@ public class MainController {
         cycles.clear();
         sourceFlightStorage.clear();
         mandatoryFlightsWithoutCycles.clear();
-        validationErrors.clear();
-        importErrors.clear();
+        clearErrors();
         final CsvParser parser = new CsvParser(file.getBytes());
         parser.perform();
         parser.getFlights().forEach(flight -> sourceFlightStorage.store(flight));
@@ -101,7 +98,7 @@ public class MainController {
     }
 
     /**
-     * Порахувати цикли і обов'язкові рейси, незадіяні в циклах
+     * Порахувати цикли і обов'язкові рейси поза циклами
      *
      * @param model
      * @return
@@ -110,8 +107,7 @@ public class MainController {
     public String calculate(Model model) {
         cycles.clear();
         mandatoryFlightsWithoutCycles.clear();
-        importErrors.clear();
-        validationErrors.clear();
+        clearErrors();
         final Calculator calculator = new Calculator(sourceFlightStorage.list());
         calculator.perform();
         cycles.addAll(calculator.getCycles());
@@ -133,6 +129,14 @@ public class MainController {
         model.addAttribute("validationErrors", validationErrors);
         model.addAttribute("importErrors", importErrors);
         return "home";
+    }
+    
+    /**
+     * Почистити всі повідомлення про помилки
+     */
+    private void clearErrors() {
+        importErrors.clear();
+        validationErrors.clear();        
     }
 
 }
