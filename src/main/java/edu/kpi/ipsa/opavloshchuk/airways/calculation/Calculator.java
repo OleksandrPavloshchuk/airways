@@ -144,14 +144,14 @@ public class Calculator {
                 // Далі ми рухатися по цьому ланцюжку не можемо - відсікаємо гілку
                 return Collections.emptyList();
             }
-            if (last.getTo() == base.getReturnPoint()) {
+            if (last.getTo() == base.getReturnPoint()) { //!перевіряємо чи може бути циклом
                 // Останній рейс у ланцюжку повертається у початкову точку - цикл знайдено:
                 return Arrays.asList(base);
             }
         }
         // Продовжити рекурсивно для всіх сусідніх рейсів:
         return getNeighbours(last)
-                .map(flight -> detectCycles(new Cycle(base, flight)))
+                .map(flight -> detectCycles(new Cycle(base, flight))) //!це рекурсія
                 .flatMap(List::stream)
                 .collect(Collectors.toList());
     }
